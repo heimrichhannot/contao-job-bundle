@@ -69,11 +69,6 @@ $GLOBALS['TL_DCA']['tl_job_archive'] = [
                 'href'                => 'act=show',
                 'icon'                => 'show.gif'
             ],
-            'toggle' => [
-                'label'               => &$GLOBALS['TL_LANG']['tl_job_archive']['toggle'],
-                'href'                => 'act=toggle',
-                'icon'                => 'toggle.gif'
-            ],
         ]
     ],
     'palettes' => [
@@ -104,19 +99,5 @@ $GLOBALS['TL_DCA']['tl_job_archive'] = [
             'eval'                    => ['mandatory' => true, 'tl_class'=>'w50'],
             'sql'                     => "varchar(255) NOT NULL default ''"
         ],
-        'start' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job_archive']['start'],
-            'exclude'                 => true,
-            'inputType'               => 'text',
-            'eval'                    => ['rgxp'=>'datim', 'datepicker'=>true, 'tl_class'=>'w50 wizard'],
-            'sql'                     => "varchar(10) NOT NULL default ''"
-        ],
-        'stop' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job_archive']['stop'],
-            'exclude'                 => true,
-            'inputType'               => 'text',
-            'eval'                    => ['rgxp'=>'datim', 'datepicker'=>true, 'tl_class'=>'w50 wizard'],
-            'sql'                     => "varchar(10) NOT NULL default ''"
-        ]
     ]
 ];
