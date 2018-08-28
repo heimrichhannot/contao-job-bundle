@@ -72,26 +72,29 @@ $GLOBALS['TL_DCA']['tl_job'] = [
         ]
     ],
     'palettes'    => [
-        '__selector__' => ['published'],
-        'default'      => '{general_legend},title;{publish_legend},published;'
+        '__selector__' => ['addMemberContacts', 'published'],
+        'default'      =>
+            '{general_legend},title,description,location,region,files,workingTime,levelsOfEducation,targets,yearsOfProfessionalExperience;
+            {employer_legend},employer,addMemberContacts;{publish_legend},published;'
     ],
     'subpalettes' => [
-        'published' => 'start,stop'
+        'addMemberContacts' => 'memberContacts',
+        'published'         => 'start,stop'
     ],
     'fields'      => [
-        'id'        => [
+        'id'                            => [
             'sql' => "int(10) unsigned NOT NULL auto_increment"
         ],
-        'pid'       => [
+        'pid'                           => [
             'foreignKey' => 'tl_job_archive.title',
             'sql'        => "int(10) unsigned NOT NULL default '0'",
             'relation'   => ['type' => 'belongsTo', 'load' => 'eager']
         ],
-        'tstamp'    => [
+        'tstamp'                        => [
             'label' => &$GLOBALS['TL_LANG']['tl_job']['tstamp'],
             'sql'   => "int(10) unsigned NOT NULL default '0'"
         ],
-        'dateAdded' => [
+        'dateAdded'                     => [
             'label'   => &$GLOBALS['TL_LANG']['MSC']['dateAdded'],
             'sorting' => true,
             'flag'    => 6,
@@ -99,7 +102,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'sql'     => "int(10) unsigned NOT NULL default '0'"
         ],
         // job
-        'title'     => [
+        'title'                         => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['title'],
             'exclude'   => true,
             'search'    => true,
@@ -109,9 +112,120 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'eval'      => ['mandatory' => true, 'tl_class' => 'w50'],
             'sql'       => "varchar(255) NOT NULL default ''"
         ],
+        'description'                   => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['description'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'textarea',
+            'eval'      => ['tl_class' => 'long clr'],
+            'sql'       => "text NULL"
+        ],
+        'location'                      => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['location'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'text',
+            'eval'      => ['maxlength' => 255, 'tl_class' => 'w50'],
+            'sql'       => "varchar(255) NOT NULL default ''"
+        ],
+        'region'                        => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['region'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'text',
+            'eval'      => ['maxlength' => 255, 'tl_class' => 'w50'],
+            'sql'       => "varchar(255) NOT NULL default ''"
+        ],
+        'files'                         => [
+            'label'              => &$GLOBALS['TL_LANG']['tl_job']['files'],
+            'exclude'            => true,
+            'inputType'          => 'fileTree',
+            'eval'               => [
+                'tl_class'   => 'clr',
+                'extensions' => 'pdf,doc,docx,odt,xls,xlsx,ppt,pptx,png,jpg,jpeg,gif',
+                'filesOnly'  => true,
+                'maxFiles'   => 10,
+                'fieldType'  => 'radio',
+                'multiple'   => true
+            ],
+            'uploadPathCallback' => [['huh.job.listener.job_callback', 'getUploadPath']],
+            'sql'                => "blob NULL",
+        ],
+        'workingTime'                   => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['workingTime'],
+            'exclude'   => true,
+            'filter'    => true,
+            'inputType' => 'select',
+            'options'   => \HeimrichHannot\JobBundle\Model\JobModel::WORKING_TIMES,
+            'reference' => &$GLOBALS['TL_LANG']['tl_job']['reference'],
+            'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => true, 'multiple' => true, 'chosen' => true],
+            'sql'       => "blob NULL"
+        ],
+        'levelsOfEducation'             => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['levelsOfEducation'],
+            'exclude'   => true,
+            'filter'    => true,
+            'inputType' => 'select',
+            'options'   => \HeimrichHannot\JobBundle\Model\JobModel::LEVELS_OF_EDUCATION,
+            'reference' => &$GLOBALS['TL_LANG']['tl_job']['reference'],
+            'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => true, 'multiple' => true, 'chosen' => true],
+            'sql'       => "blob NULL"
+        ],
+        'targets'                       => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['targets'],
+            'exclude'   => true,
+            'filter'    => true,
+            'inputType' => 'select',
+            'options'   => \HeimrichHannot\JobBundle\Model\JobModel::TARGETS,
+            'reference' => &$GLOBALS['TL_LANG']['tl_job']['reference'],
+            'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => true, 'multiple' => true, 'chosen' => true],
+            'sql'       => "blob NULL"
+        ],
+        'yearsOfProfessionalExperience' => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['yearsOfProfessionalExperience'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'text',
+            'eval'      => ['rgxp' => 'digit', 'maxlength' => 10, 'tl_class' => 'w50'],
+            'sql'       => "int(10) unsigned NOT NULL default '0'"
+        ],
         // employer
+        'employer'                      => [
+            'label'            => &$GLOBALS['TL_LANG']['tl_job']['employer'],
+            'exclude'          => true,
+            'filter'           => true,
+            'inputType'        => 'select',
+            'options_callback' => function (\Contao\DataContainer $dc) {
+                return System::getContainer()->get('huh.utils.choice.model_instance')->getCachedChoices([
+                    'dataContainer' => 'tl_company',
+                    'labelPattern'  => '%title% (ID: %id%)'
+                ]);
+            },
+            'eval'             => ['tl_class' => 'w50', 'includeBlankOption' => true, 'submitOnChange' => true, 'chosen' => true],
+            'sql'              => "int(10) unsigned NOT NULL default '0'"
+        ],
+        // contact
+        'addMemberContacts'             => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['addMemberContacts'],
+            'exclude'   => true,
+            'filter'    => true,
+            'inputType' => 'checkbox',
+            'eval'      => ['tl_class' => 'w50 clr', 'submitOnChange' => true],
+            'sql'       => "char(1) NOT NULL default ''"
+        ],
+        'memberContacts'                => [
+            'label'            => &$GLOBALS['TL_LANG']['tl_job']['memberContacts'],
+            'inputType'        => 'select',
+            'options_callback' => function (\Contao\DataContainer $dc) {
+                return System::getContainer()->get('huh.utils.choice.model_instance')->getCachedChoices([
+                    'dataContainer' => 'tl_member',
+                ]);
+            },
+            'eval'             => ['multiple' => true, 'chosen' => true, 'tl_class' => 'w50', 'mandatory' => true],
+            'sql'              => "blob NULL"
+        ],
         // published
-        'published' => [
+        'published'                     => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['published'],
             'exclude'   => true,
             'filter'    => true,
@@ -119,14 +233,14 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'eval'      => ['doNotCopy' => true, 'submitOnChange' => true],
             'sql'       => "char(1) NOT NULL default ''"
         ],
-        'start'     => [
+        'start'                         => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['start'],
             'exclude'   => true,
             'inputType' => 'text',
             'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''"
         ],
-        'stop'      => [
+        'stop'                          => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['stop'],
             'exclude'   => true,
             'inputType' => 'text',
@@ -135,3 +249,14 @@ $GLOBALS['TL_DCA']['tl_job'] = [
         ]
     ]
 ];
+
+$dca = &$GLOBALS['TL_DCA']['tl_job'];
+
+System::getContainer()->get('huh.utils.dca')->addAliasToDca('tl_job', function ($value, \Contao\DataContainer $dc) {
+    return System::getContainer()->get('huh.utils.dca')->generateAlias($value, $dc->id, 'tl_job', $dc->activeRecord->title);
+}, 'title');
+
+if (System::getContainer()->get('huh.utils.container')->isFrontend() && class_exists(
+        '\HeimrichHannot\MultiFileUploadBundle\HeimrichHannotContaoMultiFileUploadBundle')) {
+    $dca['fields']['files']['inputType'] = 'multifileupload';
+}

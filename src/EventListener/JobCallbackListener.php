@@ -10,6 +10,7 @@ namespace HeimrichHannot\JobBundle\EventListener;
 
 use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\DataContainer;
 use Contao\System;
 
 class JobCallbackListener
@@ -22,6 +23,11 @@ class JobCallbackListener
     public function __construct(ContaoFrameworkInterface $framework)
     {
         $this->framework = $framework;
+    }
+
+    public function getUploadPath($target, $file, DataContainer $dc)
+    {
+        return 'files/jobs';
     }
 
     public function listChildren($arrRow)
