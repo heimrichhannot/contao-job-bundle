@@ -1,0 +1,9 @@
+services:
+  huh.job.listener.job_callback:
+    class: HeimrichHannot\JobBundle\EventListener\JobCallbackListener
+    arguments:
+    - "@contao.framework"
+  huh.job.listener.job_archive_callback:
+    class: HeimrichHannot\JobBundle\EventListener\JobArchiveCallbackListener
+    arguments:
+    - "@contao.framework"
