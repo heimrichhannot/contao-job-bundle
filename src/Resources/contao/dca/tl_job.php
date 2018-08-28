@@ -1,11 +1,11 @@
 <?php
 
 $GLOBALS['TL_DCA']['tl_job'] = [
-    'config'   => [
+    'config'      => [
         'dataContainer'     => 'Table',
         'ptable'            => 'tl_job_archive',
         'enableVersioning'  => true,
-        'onload_callback' => [
+        'onload_callback'   => [
             ['huh.job.listener.job_callback', 'checkPermission'],
         ],
         'onsubmit_callback' => [
@@ -14,33 +14,34 @@ $GLOBALS['TL_DCA']['tl_job'] = [
         'oncopy_callback'   => [
             ['huh.utils.dca', 'setDateAddedOnCopy'],
         ],
-        'sql' => [
+        'sql'               => [
             'keys' => [
-                'id' => 'primary',
-                'pid,start,stop,published' => 'index'            ]
+                'id'                       => 'primary',
+                'pid,start,stop,published' => 'index'
+            ]
         ]
     ],
-    'list'     => [
-        'label' => [
-            'fields' => ['id'],
+    'list'        => [
+        'label'             => [
+            'fields' => ['title'],
             'format' => '%s'
         ],
         'sorting'           => [
-            'mode'                  => 1,
+            'mode'                  => 2,
             'fields'                => ['title'],
             'headerFields'          => ['title'],
             'panelLayout'           => 'filter;sort,search,limit',
             'child_record_callback' => ['huh.job.listener.job_callback', 'listChildren']
         ],
         'global_operations' => [
-            'all'    => [
+            'all' => [
                 'label'      => &$GLOBALS['TL_LANG']['MSC']['all'],
                 'href'       => 'act=select',
                 'class'      => 'header_edit_all',
                 'attributes' => 'onclick="Backend.getScrollOffset();"'
             ],
         ],
-        'operations' => [
+        'operations'        => [
             'edit'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_job']['edit'],
                 'href'  => 'act=edit',
@@ -70,64 +71,67 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             ],
         ]
     ],
-    'palettes' => [
+    'palettes'    => [
         '__selector__' => ['published'],
-        'default' => '{general_legend},title;{publish_legend},published;'
+        'default'      => '{general_legend},title;{publish_legend},published;'
     ],
     'subpalettes' => [
-        'published'    => 'start,stop'
+        'published' => 'start,stop'
     ],
-    'fields'   => [
-        'id' => [
-            'sql'                     => "int(10) unsigned NOT NULL auto_increment"
+    'fields'      => [
+        'id'        => [
+            'sql' => "int(10) unsigned NOT NULL auto_increment"
         ],
-        'pid' => [
-            'foreignKey'              => 'tl_job_archive.title',
-            'sql'                     => "int(10) unsigned NOT NULL default '0'",
-            'relation'                => ['type'=>'belongsTo', 'load'=>'eager']
+        'pid'       => [
+            'foreignKey' => 'tl_job_archive.title',
+            'sql'        => "int(10) unsigned NOT NULL default '0'",
+            'relation'   => ['type' => 'belongsTo', 'load' => 'eager']
         ],
-        'tstamp' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job']['tstamp'],
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+        'tstamp'    => [
+            'label' => &$GLOBALS['TL_LANG']['tl_job']['tstamp'],
+            'sql'   => "int(10) unsigned NOT NULL default '0'"
         ],
         'dateAdded' => [
-            'label'                   => &$GLOBALS['TL_LANG']['MSC']['dateAdded'],
-            'sorting'                 => true,
-            'flag'                    => 6,
-            'eval'                    => ['rgxp'=>'datim', 'doNotCopy' => true],
-            'sql'                     => "int(10) unsigned NOT NULL default '0'"
+            'label'   => &$GLOBALS['TL_LANG']['MSC']['dateAdded'],
+            'sorting' => true,
+            'flag'    => 6,
+            'eval'    => ['rgxp' => 'datim', 'doNotCopy' => true],
+            'sql'     => "int(10) unsigned NOT NULL default '0'"
         ],
-        'title' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job']['title'],
-            'exclude'                 => true,
-            'search'                  => true,
-            'sorting'                 => true,
-            'flag'                    => 1,
-            'inputType'               => 'text',
-            'eval'                    => ['mandatory' => true, 'tl_class'=>'w50'],
-            'sql'                     => "varchar(255) NOT NULL default ''"
+        // job
+        'title'     => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['title'],
+            'exclude'   => true,
+            'search'    => true,
+            'sorting'   => true,
+            'flag'      => 1,
+            'inputType' => 'text',
+            'eval'      => ['mandatory' => true, 'tl_class' => 'w50'],
+            'sql'       => "varchar(255) NOT NULL default ''"
         ],
+        // employer
+        // published
         'published' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job']['published'],
-            'exclude'                 => true,
-            'filter'                  => true,
-            'inputType'               => 'checkbox',
-            'eval'                    => ['doNotCopy'=>true, 'submitOnChange' => true],
-            'sql'                     => "char(1) NOT NULL default ''"
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['published'],
+            'exclude'   => true,
+            'filter'    => true,
+            'inputType' => 'checkbox',
+            'eval'      => ['doNotCopy' => true, 'submitOnChange' => true],
+            'sql'       => "char(1) NOT NULL default ''"
         ],
-        'start' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job']['start'],
-            'exclude'                 => true,
-            'inputType'               => 'text',
-            'eval'                    => ['rgxp'=>'datim', 'datepicker'=>true, 'tl_class'=>'w50 wizard'],
-            'sql'                     => "varchar(10) NOT NULL default ''"
+        'start'     => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['start'],
+            'exclude'   => true,
+            'inputType' => 'text',
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql'       => "varchar(10) NOT NULL default ''"
         ],
-        'stop' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job']['stop'],
-            'exclude'                 => true,
-            'inputType'               => 'text',
-            'eval'                    => ['rgxp'=>'datim', 'datepicker'=>true, 'tl_class'=>'w50 wizard'],
-            'sql'                     => "varchar(10) NOT NULL default ''"
+        'stop'      => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['stop'],
+            'exclude'   => true,
+            'inputType' => 'text',
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql'       => "varchar(10) NOT NULL default ''"
         ]
     ]
 ];

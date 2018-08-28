@@ -42,7 +42,7 @@ $GLOBALS['TL_DCA']['tl_job_archive'] = [
         'operations' => [
             'edit' => [
                 'label'               => &$GLOBALS['TL_LANG']['tl_job_archive']['edit'],
-                'href'                => 'table=tl_',
+                'href'                => 'table=tl_job',
                 'icon'                => 'edit.gif'
             ],
             'editheader' => [
@@ -77,11 +77,7 @@ $GLOBALS['TL_DCA']['tl_job_archive'] = [
         ]
     ],
     'palettes' => [
-        '__selector__' => ['published'],
-        'default' => '{general_legend},title;{publish_legend},published;'
-    ],
-    'subpalettes' => [
-        'published'    => 'start,stop'
+        'default' => '{general_legend},title;'
     ],
     'fields'   => [
         'id' => [
@@ -107,14 +103,6 @@ $GLOBALS['TL_DCA']['tl_job_archive'] = [
             'inputType'               => 'text',
             'eval'                    => ['mandatory' => true, 'tl_class'=>'w50'],
             'sql'                     => "varchar(255) NOT NULL default ''"
-        ],
-        'published' => [
-            'label'                   => &$GLOBALS['TL_LANG']['tl_job_archive']['published'],
-            'exclude'                 => true,
-            'filter'                  => true,
-            'inputType'               => 'checkbox',
-            'eval'                    => ['doNotCopy'=>true, 'submitOnChange' => true],
-            'sql'                     => "char(1) NOT NULL default ''"
         ],
         'start' => [
             'label'                   => &$GLOBALS['TL_LANG']['tl_job_archive']['start'],
