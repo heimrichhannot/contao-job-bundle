@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2018-12-05
+
+### Added
+- optional support for heimrichhannot/contao-list-bundle and heimrichhannot/contao-reader-bundle
+
 ## [1.0.2] - 2018-12-05
 
 ### Added

@@ -1,0 +1,7 @@
+huh:
+  list:
+    items:
+      - { name: job_default, class: HeimrichHannot\JobBundle\Item\DefaultJobListItem }
+    templates:
+      item_prefixes:
+        - job_

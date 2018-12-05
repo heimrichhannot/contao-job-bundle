@@ -1,0 +1,7 @@
+huh:
+  reader:
+    items:
+      - { name: job_default, class: HeimrichHannot\JobBundle\Item\DefaultJobReaderItem }
+    templates:
+      item_prefixes:
+        - job_

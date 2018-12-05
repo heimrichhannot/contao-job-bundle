@@ -45,5 +45,9 @@
   },
   "extra": {
     "contao-manager-plugin": "HeimrichHannot\\JobBundle\\ContaoManager\\Plugin"
+  },
+  "suggest": {
+    "heimrichhannot/contao-list-bundle": "This bundle offers a generic list module to use with arbitrary contao entities containing standard list handling like pagination, sorting, and filtering.",
+    "heimrichhannot/contao-reader-bundle": "This bundle offers a generic reader module to use with arbitrary contao entities containing standard reader specific functionality like field output, images and auto_item handling."
   }
 }
