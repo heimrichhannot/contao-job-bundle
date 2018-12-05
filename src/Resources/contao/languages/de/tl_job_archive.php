@@ -5,11 +5,11 @@ $lang = &$GLOBALS['TL_LANG']['tl_job_archive'];
 /**
  * Fields
  */
-$lang['tstamp']    = ['Änderungsdatum', ''];
-$lang['title']     = ['Titel', 'Geben Sie hier bitte den Titel ein.'];
-$lang['published'] = ['Veröffentlichen', 'Wählen Sie diese Option zum Veröffentlichen.'];
-$lang['start']     = ['Anzeigen ab', 'Jobarchiv erst ab diesem Tag auf der Webseite anzeigen.'];
-$lang['stop']      = ['Anzeigen bis', 'Jobarchiv nur bis zu diesem Tag auf der Webseite anzeigen.'];
+$lang['tstamp'][0]         = 'Änderungsdatum';
+$lang['title'][0]          = 'Titel';
+$lang['title'][1]          = 'Geben Sie hier bitte den Titel ein.';
+$lang['memberContacts'][0] = 'Ansprechpartner (Mitglied)';
+$lang['memberContacts'][1] = 'Wählen Sie hier die Mitglieder aus, die die Firma bearbeiten dürfen. Die Logik für die Prüfung der Berechtigung muss im Frontend durch das Modul zur Frontend-Bearbeitung (bspw. <i>heimrichhannot/contao-frontendedit</i>) umgesetzt werden.';
 
 /**
  * Legends

@@ -72,13 +72,13 @@ $GLOBALS['TL_DCA']['tl_job'] = [
         ]
     ],
     'palettes'    => [
-        '__selector__' => ['addMemberContacts', 'published'],
+        '__selector__' => ['addImage', 'published'],
         'default'      =>
-            '{general_legend},title,description,location,region,files,workingTime,levelsOfEducation,targets,yearsOfProfessionalExperience;
-            {employer_legend},employer,addMemberContacts;{publish_legend},published;'
+            '{general_legend},title,description,location,region,addImage,files,workingTime,levelsOfEducation,targets,yearsOfProfessionalExperience;
+            {employer_legend},employer,overrideMemberContacts;{publish_legend},published;'
     ],
     'subpalettes' => [
-        'addMemberContacts' => 'memberContacts',
+        'addImage'          => 'singleSRC',
         'published'         => 'start,stop'
     ],
     'fields'      => [
@@ -117,7 +117,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'exclude'   => true,
             'search'    => true,
             'inputType' => 'textarea',
-            'eval'      => ['tl_class' => 'long clr'],
+            'eval'      => ['tl_class' => 'long clr', 'rte' => 'tinyMCE'],
             'sql'       => "text NULL"
         ],
         'location'                      => [
@@ -135,6 +135,20 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'inputType' => 'text',
             'eval'      => ['maxlength' => 255, 'tl_class' => 'w50'],
             'sql'       => "varchar(255) NOT NULL default ''"
+        ],
+        'addImage'                      => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['addImage'],
+            'exclude'   => true,
+            'inputType' => 'checkbox',
+            'eval'      => ['tl_class' => 'w50', 'submitOnChange' => true],
+            'sql'       => "char(1) NOT NULL default ''"
+        ],
+        'singleSRC'                     => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['singleSRC'],
+            'exclude'   => true,
+            'inputType' => 'fileTree',
+            'eval'      => ['fieldType' => 'radio', 'filesOnly' => true, 'extensions' => Config::get('validImageTypes'), 'mandatory' => true],
+            'sql'       => "binary(16) NULL"
         ],
         'files'                         => [
             'label'              => &$GLOBALS['TL_LANG']['tl_job']['files'],
@@ -204,26 +218,6 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'eval'             => ['tl_class' => 'w50', 'includeBlankOption' => true, 'submitOnChange' => true, 'chosen' => true],
             'sql'              => "int(10) unsigned NOT NULL default '0'"
         ],
-        // contact
-        'addMemberContacts'             => [
-            'label'     => &$GLOBALS['TL_LANG']['tl_job']['addMemberContacts'],
-            'exclude'   => true,
-            'filter'    => true,
-            'inputType' => 'checkbox',
-            'eval'      => ['tl_class' => 'w50 clr', 'submitOnChange' => true],
-            'sql'       => "char(1) NOT NULL default ''"
-        ],
-        'memberContacts'                => [
-            'label'            => &$GLOBALS['TL_LANG']['tl_job']['memberContacts'],
-            'inputType'        => 'select',
-            'options_callback' => function (\Contao\DataContainer $dc) {
-                return System::getContainer()->get('huh.utils.choice.model_instance')->getCachedChoices([
-                    'dataContainer' => 'tl_member',
-                ]);
-            },
-            'eval'             => ['multiple' => true, 'chosen' => true, 'tl_class' => 'w50', 'mandatory' => true],
-            'sql'              => "blob NULL"
-        ],
         // published
         'published'                     => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['published'],
@@ -260,3 +254,7 @@ if (System::getContainer()->get('huh.utils.container')->isFrontend() && class_ex
         '\HeimrichHannot\MultiFileUploadBundle\HeimrichHannotContaoMultiFileUploadBundle')) {
     $dca['fields']['files']['inputType'] = 'multifileupload';
 }
+
+System::getContainer()->get('huh.utils.dca')->addOverridableFields(
+    ['memberContacts'], 'tl_job_archive', 'tl_job'
+);

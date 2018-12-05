@@ -16,6 +16,10 @@ $lang['location'][0]                      = 'Ort';
 $lang['location'][1]                      = 'Geben Sie hier bitte den Ort ein, an dem der Bewerber präsent sein muss.';
 $lang['region'][0]                        = 'Region';
 $lang['region'][1]                        = 'Geben Sie hier bitte die Region ein, in der der Bewerber präsent sein muss.';
+$lang['addImage'][0]                      = 'Bild hinzufügen';
+$lang['addImage'][1]                      = 'Wählen Sie diese Option, um ein Bild hinzuzufügen.';
+$lang['singleSRC'][0]                     = 'Quell-Datei';
+$lang['singleSRC'][1]                     = 'Wählen Sie hier eine Bilddatei aus.';
 $lang['files'][0]                         = 'Dateien';
 $lang['files'][1]                         = 'Laden Sie hier bei Bedarf zusätzliche Dateien hoch.';
 $lang['workingTime'][0]                   = 'Arbeitszeit';
@@ -30,10 +34,6 @@ $lang['yearsOfProfessionalExperience'][1] = 'Geben Sie hier an, wie viele Jahre 
 // employer
 $lang['employer'][0]          = 'Arbeitgeber';
 $lang['employer'][1]          = 'Wählen Sie hier eine Firma/Institution aus.';
-$lang['addMemberContacts'][0] = 'Ansprechpartner (Mitglied) hinzufügen';
-$lang['addMemberContacts'][1] = 'Wählen Sie diese Option, um der Firma Ansprechpartner hinzuzufügen, die Mitglieder sind.';
-$lang['memberContacts'][0]    = 'Ansprechpartner (Mitglied)';
-$lang['memberContacts'][1]    = 'Wählen Sie hier die Mitglieder aus, die die Firma bearbeiten dürfen. Die Logik für die Prüfung der Berechtigung muss im Frontend durch das Modul zur Frontend-Bearbeitung (bspw. <i>heimrichhannot/contao-frontendedit</i>) umgesetzt werden.';
 
 // published
 $lang['published'][0] = 'Veröffentlichen';
