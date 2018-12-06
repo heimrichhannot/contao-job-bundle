@@ -7,6 +7,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
         'enableVersioning'  => true,
         'onload_callback'   => [
             ['huh.job.listener.job_callback', 'checkPermission'],
+            ['huh.utils.dca', 'generateSitemap']
         ],
         'onsubmit_callback' => [
             ['huh.utils.dca', 'setDateAdded'],

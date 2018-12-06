@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2018-12-06
+
+### Added
+- support for sitemap generation
+
 ## [1.1.0] - 2018-12-05
 
 ### Added
