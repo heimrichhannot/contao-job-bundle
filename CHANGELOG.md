@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2019-02-14
+
+### Added
+- fields `date` and `time` added to `tl_job` and structured fieldsets
+
+### Fixed
+- Permission handling for non admins to copy, and do multiple actions like copyAll in `tl_job` dca
+
 ## [1.2.0] - 2018-12-06
 
 ### Added

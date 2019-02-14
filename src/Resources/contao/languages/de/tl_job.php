@@ -10,6 +10,10 @@ $lang['tstamp'][0] = 'Änderungsdatum';
 // general
 $lang['title'][0]                         = 'Titel';
 $lang['title'][1]                         = 'Geben Sie hier bitte den Titel ein.';
+$lang['date'][0]                          = 'Datum';
+$lang['date'][1]                          = 'Bitte geben Sie das Datum gemäß des globalen Datumsformats ein.';
+$lang['time'][0]                          = 'Zeit';
+$lang['time'][1]                          = 'Bitte geben Sie die Uhrzeit gemäß des globalen Zeitformats ein.';
 $lang['description'][0]                   = 'Beschreibung';
 $lang['description'][1]                   = 'Geben Sie hier bitte eine Beschreibung ein.';
 $lang['location'][0]                      = 'Ort';
@@ -20,7 +24,7 @@ $lang['addImage'][0]                      = 'Bild hinzufügen';
 $lang['addImage'][1]                      = 'Wählen Sie diese Option, um ein Bild hinzuzufügen.';
 $lang['singleSRC'][0]                     = 'Quell-Datei';
 $lang['singleSRC'][1]                     = 'Wählen Sie hier eine Bilddatei aus.';
-$lang['files'][0]                         = 'Dateien';
+$lang['files'][0]                         = 'Anlagen';
 $lang['files'][1]                         = 'Laden Sie hier bei Bedarf zusätzliche Dateien hoch.';
 $lang['workingTime'][0]                   = 'Arbeitszeit';
 $lang['workingTime'][1]                   = 'Wählen Sie hier die verfügbaren Arbeitszeitmodelle aus.';
@@ -32,8 +36,8 @@ $lang['yearsOfProfessionalExperience'][0] = 'Jahre der Berufserfahrung';
 $lang['yearsOfProfessionalExperience'][1] = 'Geben Sie hier an, wie viele Jahre Berufserfahrung der Bewerber mindestens vorweisen muss.';
 
 // employer
-$lang['employer'][0]          = 'Arbeitgeber';
-$lang['employer'][1]          = 'Wählen Sie hier eine Firma/Institution aus.';
+$lang['employer'][0] = 'Arbeitgeber';
+$lang['employer'][1] = 'Wählen Sie hier eine Firma/Institution aus.';
 
 // published
 $lang['published'][0] = 'Veröffentlichen';
@@ -46,9 +50,10 @@ $lang['stop'][1]      = 'Job nur bis zu diesem Tag auf der Webseite anzeigen.';
 /**
  * Legends
  */
-$lang['general_legend']  = 'Allgemeine Einstellungen';
-$lang['employer_legend'] = 'Arbeitgeber';
-$lang['publish_legend']  = 'Veröffentlichung';
+$lang['general_legend']   = 'Allgemeine Einstellungen';
+$lang['employer_legend']  = 'Arbeitgeber';
+$lang['enclosure_legend'] = 'Anlagen';
+$lang['publish_legend']   = 'Veröffentlichung';
 
 /**
  * Reference
@@ -64,7 +69,7 @@ $lang['reference'] = [
     \HeimrichHannot\JobBundle\Model\JobModel::EDUCATION_UNIVERSITY_GRADUATE         => 'Hochschulabsolvent',
     \HeimrichHannot\JobBundle\Model\JobModel::EDUCATION_COLLEGE_GRADUATE            => 'Fachhochschulabsolvent',
     \HeimrichHannot\JobBundle\Model\JobModel::EDUCATION_VOCATIONAL_ACADEMY_GRADUATE => 'BA-Absolvent',
-    \HeimrichHannot\JobBundle\Model\JobModel::EDUCATION_COMPLETED_APPRENTICESHIP    => 'Abgeschlossene Berufsausbildung'
+    \HeimrichHannot\JobBundle\Model\JobModel::EDUCATION_COMPLETED_APPRENTICESHIP    => 'Abgeschlossene Berufsausbildung',
 ];
 
 /**
