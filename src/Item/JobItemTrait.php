@@ -46,23 +46,6 @@ trait JobItemTrait
     }
 
     /**
-     * Get all enclosures.
-     *
-     * @return array|null
-     */
-    public function getEnclosures(): ?array
-    {
-        if (true === $this->enclosure) {
-            return null;
-        }
-
-        $template = new \stdClass();
-        Controller::addEnclosuresToTemplate($template, $this->getRaw());
-
-        return $template->enclosure;
-    }
-
-    /**
      * Compile the job content (tl_content).
      *
      * @return string
