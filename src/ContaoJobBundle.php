@@ -8,16 +8,16 @@
 
 namespace HeimrichHannot\JobBundle;
 
-use HeimrichHannot\JobBundle\DependencyInjection\ContaoHeimrichHannotJobExtension;
+use HeimrichHannot\JobBundle\DependencyInjection\JobExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class HeimrichHannotContaoJobBundle extends Bundle
+class ContaoJobBundle extends Bundle
 {
     /**
      * {@inheritdoc}
      */
     public function getContainerExtension()
     {
-        return new ContaoHeimrichHannotJobExtension();
+        return new JobExtension();
     }
 }

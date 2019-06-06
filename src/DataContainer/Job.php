@@ -6,27 +6,31 @@
  * @license LGPL-3.0-or-later
  */
 
-namespace HeimrichHannot\JobBundle\EventListener;
+namespace HeimrichHannot\JobBundle\DataContainer;
 
+use Contao\Backend;
+use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Exception\AccessDeniedException;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\Database;
 use Contao\DataContainer;
+use Contao\Input;
 use Contao\System;
-use HeimrichHannot\JobBundle\Model\JobArchiveModel;
 use HeimrichHannot\JobBundle\Model\JobModel;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class JobCallbackListener
+class Job extends Backend
 {
     /**
-     * @var ContaoFrameworkInterface
+     * @var ContainerInterface
      */
-    private $framework;
+    protected $container;
 
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ContainerInterface $container)
     {
-        $this->framework = $framework;
+        $this->container = $container;
+        parent::__construct();
     }
 
     /**
@@ -38,7 +42,7 @@ class JobCallbackListener
      */
     public function loadDate($value)
     {
-        return strtotime(date('Y-m-d', $value ?: time()).' 00:00:00');
+        return strtotime(date('Y-m-d', $value ?: time()) . ' 00:00:00');
     }
 
     /**
@@ -50,7 +54,7 @@ class JobCallbackListener
      */
     public function loadTime($value)
     {
-        return strtotime('1970-01-01 '.date('H:i:s', $value ?: time()));
+        return strtotime('1970-01-01 ' . date('H:i:s', $value ?: time()));
     }
 
     /**
@@ -66,10 +70,10 @@ class JobCallbackListener
         }
 
         /** @var JobModel $adapter */
-        $adapter = $this->framework->getAdapter(JobModel::class);
+        $adapter = $this->container->get('contao.framework')->getAdapter(JobModel::class);
 
         if (null !== ($model = $adapter->findByPk($dc->id))) {
-            $model->date = strtotime(date('Y-m-d', $dc->activeRecord->date).' '.date('H:i:s', $dc->activeRecord->time));
+            $model->date = strtotime(date('Y-m-d', $dc->activeRecord->date) . ' ' . date('H:i:s', $dc->activeRecord->time));
             $model->time = $model->date;
             $model->save();
         }
@@ -82,13 +86,13 @@ class JobCallbackListener
 
     public function listChildren($arrRow)
     {
-        return '<div class="tl_content_left">'.($arrRow['title'] ?: $arrRow['id']).' <span style="color:#b3b3b3; padding-left:3px">['.\Date::parse(\Contao\Config::get('datimFormat'), trim($arrRow['dateAdded'])).']</span></div>';
+        return '<div class="tl_content_left">' . ($arrRow['title'] ?: $arrRow['id']) . ' <span style="color:#b3b3b3; padding-left:3px">[' . \Date::parse(\Contao\Config::get('datimFormat'), trim($arrRow['date'])) . ']</span></div>';
     }
 
     public function checkPermission()
     {
-        $user     = \Contao\BackendUser::getInstance();
-        $database = \Contao\Database::getInstance();
+        $user     = BackendUser::getInstance();
+        $database = Database::getInstance();
 
         if ($user->isAdmin) {
             return;
@@ -101,17 +105,17 @@ class JobCallbackListener
             $root = $user->jobs;
         }
 
-        $id = strlen(\Contao\Input::get('id')) ? \Contao\Input::get('id') : CURRENT_ID;
+        $id = strlen(Input::get('id')) ? Input::get('id') : CURRENT_ID;
 
         // Check current action
-        switch (\Contao\Input::get('act')) {
+        switch (Input::get('act')) {
             case 'paste':
                 // Allow
                 break;
 
             case 'create':
-                if (!strlen(\Contao\Input::get('pid')) || !in_array(\Contao\Input::get('pid'), $root)) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to create job items in job archive ID '.\Contao\Input::get('pid').'.');
+                if (!strlen(Input::get('pid')) || !in_array(Input::get('pid'), $root)) {
+                    throw new AccessDeniedException('Not enough permissions to create job items in job archive ID ' . Input::get('pid') . '.');
                 }
                 break;
 
@@ -125,11 +129,11 @@ class JobCallbackListener
                 $item = \Contao\System::getContainer()->get('huh.utils.model')->findModelInstanceByPk('tl_job', $id);
 
                 if (null === $item) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Invalid job item ID '.$id.'.');
+                    throw new AccessDeniedException('Invalid job item ID ' . $id . '.');
                 }
 
                 if (!in_array($item->pid, $root)) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to '.\Contao\Input::get('act').' job item ID '.$id.' of job archive ID '.$job->pid.'.');
+                    throw new AccessDeniedException('Not enough permissions to ' . Input::get('act') . ' job item ID ' . $id . ' of job archive ID ' . $job->pid . '.');
                 }
                 break;
 
@@ -141,7 +145,7 @@ class JobCallbackListener
             case 'copyAll':
 
                 if (!\in_array($id, $root)) {
-                    throw new AccessDeniedException('Not enough permissions to access tl_job archive ID '.$id.'.');
+                    throw new AccessDeniedException('Not enough permissions to access tl_job archive ID ' . $id . '.');
                 }
 
                 $items = \Contao\System::getContainer()->get('huh.utils.model')->findModelInstancesBy('tl_job', ['pid=?'], [$id]);
@@ -160,10 +164,10 @@ class JobCallbackListener
                 break;
 
             default:
-                if (strlen(\Contao\Input::get('act'))) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Invalid command "'.\Contao\Input::get('act').'".');
+                if (strlen(Input::get('act'))) {
+                    throw new AccessDeniedException('Invalid command "' . Input::get('act') . '".');
                 } elseif (!in_array($id, $root)) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to access job archive ID '.$id.'.');
+                    throw newAccessDeniedException('Not enough permissions to access job archive ID ' . $id . '.');
                 }
                 break;
         }
@@ -171,10 +175,10 @@ class JobCallbackListener
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        $user = \Contao\BackendUser::getInstance();
+        $user = BackendUser::getInstance();
 
-        if (strlen(\Contao\Input::get('tid'))) {
-            $this->toggleVisibility(\Contao\Input::get('tid'), ('1' === \Contao\Input::get('state')), (@func_get_arg(12) ?: null));
+        if (strlen(Input::get('tid'))) {
+            $this->toggleVisibility(Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             Controller::redirect(System::getReferer());
         }
 
@@ -183,23 +187,23 @@ class JobCallbackListener
             return '';
         }
 
-        $href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
+        $href .= '&amp;tid=' . $row['id'] . '&amp;state=' . ($row['published'] ? '' : 1);
 
         if (!$row['published']) {
             $icon = 'invisible.svg';
         }
 
-        return '<a href="'.Controller::addToUrl($href).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
+        return '<a href="' . Controller::addToUrl($href) . '&rt=' . \RequestToken::get() . '" title="' . \StringUtil::specialchars($title) . '"' . $attributes . '>' . \Image::getHtml($icon, $label, 'data-state="' . ($row['published'] ? 1 : 0) . '"') . '</a> ';
     }
 
     public function toggleVisibility($intId, $blnVisible, \DataContainer $dc = null)
     {
-        $user     = \Contao\BackendUser::getInstance();
-        $database = \Contao\Database::getInstance();
+        $user     = BackendUser::getInstance();
+        $database = Database::getInstance();
 
         // Set the ID and action
-        \Contao\Input::setGet('id', $intId);
-        \Contao\Input::setGet('act', 'toggle');
+        Input::setGet('id', $intId);
+        Input::setGet('act', 'toggle');
 
         if ($dc) {
             $dc->id = $intId; // see #8043
@@ -218,7 +222,7 @@ class JobCallbackListener
 
         // Check the field access
         if (!$user->hasAccess('tl_job::published', 'alexf')) {
-            throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to publish/unpublish job item ID '.$intId.'.');
+            throw new AccessDeniedException('Not enough permissions to publish/unpublish job item ID ' . $intId . '.');
         }
 
         // Set the current record
@@ -247,7 +251,7 @@ class JobCallbackListener
         $time = time();
 
         // Update the database
-        $database->prepare("UPDATE tl_job SET tstamp=$time, published='".($blnVisible ? '1' : "''")."' WHERE id=?")->execute($intId);
+        $database->prepare("UPDATE tl_job SET tstamp=$time, published='" . ($blnVisible ? '1' : "''") . "' WHERE id=?")->execute($intId);
 
         if ($dc) {
             $dc->activeRecord->tstamp    = $time;

@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2019-06-06
+
+### Added
+- `tl_job.teaser` and `tl_job.subheadline` fields
+- `tl_content` support, for better custom job detail pages
+
+### Changed
+- refactored `DataContainer` classes 
+
 ## [1.3.1] - 2019-06-06
 
 ### Fixed

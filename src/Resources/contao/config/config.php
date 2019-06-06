@@ -4,7 +4,7 @@
  * Backend modules
  */
 $GLOBALS['BE_MOD']['content']['job'] = [
-    'tables' => ['tl_job_archive', 'tl_job'],
+    'tables' => ['tl_job_archive', 'tl_job', 'tl_content'],
 ];
 
 /**

@@ -6,27 +6,33 @@
  * @license LGPL-3.0-or-later
  */
 
-namespace HeimrichHannot\JobBundle\EventListener;
+namespace HeimrichHannot\JobBundle\DataContainer;
 
+use Contao\Backend;
+use Contao\BackendUser;
 use Contao\Controller;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Exception\AccessDeniedException;
+use Contao\Database;
+use Contao\Input;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class JobArchiveCallbackListener
+class JobArchive extends Backend
 {
     /**
-     * @var ContaoFrameworkInterface
+     * @var ContainerInterface
      */
-    private $framework;
+    protected $container;
 
-    public function __construct(ContaoFrameworkInterface $framework)
+    public function __construct(ContainerInterface $container)
     {
-        $this->framework = $framework;
+        $this->container = $container;
+        parent::__construct();
     }
 
     public function checkPermission()
     {
-        $user = \Contao\BackendUser::getInstance();
-        $database = \Contao\Database::getInstance();
+        $user = BackendUser::getInstance();
+        $database = Database::getInstance();
 
         if ($user->isAdmin) {
             return;
@@ -47,10 +53,10 @@ class JobArchiveCallbackListener
         }
 
         /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $objSession */
-        $objSession = \Contao\System::getContainer()->get('session');
+        $objSession = $this->container->get('session');
 
         // Check current action
-        switch (\Contao\Input::get('act')) {
+        switch (Input::get('act')) {
             case 'create':
             case 'select':
                 // Allow
@@ -58,13 +64,13 @@ class JobArchiveCallbackListener
 
             case 'edit':
                 // Dynamically add the record to the user profile
-                if (!in_array(\Contao\Input::get('id'), $root)) {
+                if (!in_array(Input::get('id'), $root)) {
                     /** @var \Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $sessionBag */
                     $sessionBag = $objSession->getBag('contao_backend');
 
                     $arrNew = $sessionBag->get('new_records');
 
-                    if (is_array($arrNew['tl_job_archive']) && in_array(\Contao\Input::get('id'), $arrNew['tl_job_archive'])) {
+                    if (is_array($arrNew['tl_job_archive']) && in_array(Input::get('id'), $arrNew['tl_job_archive'])) {
                         // Add the permissions on group level
                         if ('custom' != $user->inherit) {
                             $objGroup = $database->execute('SELECT id, jobs, jobp FROM tl_user_group WHERE id IN('.implode(',', array_map('intval', $user->groups)).')');
@@ -74,7 +80,7 @@ class JobArchiveCallbackListener
 
                                 if (is_array($arrModulep) && in_array('create', $arrModulep)) {
                                     $arrModules = \StringUtil::deserialize($objGroup->jobs, true);
-                                    $arrModules[] = \Contao\Input::get('id');
+                                    $arrModules[] = Input::get('id');
 
                                     $database->prepare('UPDATE tl_user_group SET jobs=? WHERE id=?')->execute(serialize($arrModules), $objGroup->id);
                                 }
@@ -91,7 +97,7 @@ class JobArchiveCallbackListener
 
                             if (is_array($arrModulep) && in_array('create', $arrModulep)) {
                                 $arrModules = \StringUtil::deserialize($user->jobs, true);
-                                $arrModules[] = \Contao\Input::get('id');
+                                $arrModules[] = Input::get('id');
 
                                 $database->prepare('UPDATE tl_user SET jobs=? WHERE id=?')
                                     ->execute(serialize($arrModules), $user->id);
@@ -99,7 +105,7 @@ class JobArchiveCallbackListener
                         }
 
                         // Add the new element to the user object
-                        $root[] = \Contao\Input::get('id');
+                        $root[] = Input::get('id');
                         $user->jobs = $root;
                     }
                 }
@@ -108,8 +114,8 @@ class JobArchiveCallbackListener
             case 'copy':
             case 'delete':
             case 'show':
-                if (!in_array(\Contao\Input::get('id'), $root) || ('delete' == \Contao\Input::get('act') && !$user->hasAccess('delete', 'jobp'))) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to '.\Contao\Input::get('act').' job_archive ID '.\Contao\Input::get('id').'.');
+                if (!in_array(Input::get('id'), $root) || ('delete' == Input::get('act') && !$user->hasAccess('delete', 'jobp'))) {
+                    throw new AccessDeniedException('Not enough permissions to '.Input::get('act').' job_archive ID '.Input::get('id').'.');
                 }
                 break;
 
@@ -117,7 +123,7 @@ class JobArchiveCallbackListener
             case 'deleteAll':
             case 'overrideAll':
                 $session = $objSession->all();
-                if ('deleteAll' == \Contao\Input::get('act') && !$user->hasAccess('delete', 'jobp')) {
+                if ('deleteAll' == Input::get('act') && !$user->hasAccess('delete', 'jobp')) {
                     $session['CURRENT']['IDS'] = [];
                 } else {
                     $session['CURRENT']['IDS'] = array_intersect($session['CURRENT']['IDS'], $root);
@@ -126,8 +132,8 @@ class JobArchiveCallbackListener
                 break;
 
             default:
-                if (strlen(\Contao\Input::get('act'))) {
-                    throw new \Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to '.\Contao\Input::get('act').' job_archives.');
+                if (strlen(Input::get('act'))) {
+                    throw new AccessDeniedException('Not enough permissions to '.Input::get('act').' job_archives.');
                 }
                 break;
         }
@@ -135,16 +141,16 @@ class JobArchiveCallbackListener
 
     public function editHeader($row, $href, $label, $title, $icon, $attributes)
     {
-        return \Contao\BackendUser::getInstance()->canEditFieldsOf('tl_job_archive') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+        return BackendUser::getInstance()->canEditFieldsOf('tl_job_archive') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
     }
 
     public function copyArchive($row, $href, $label, $title, $icon, $attributes)
     {
-        return \Contao\BackendUser::getInstance()->hasAccess('create', 'jobp') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+        return BackendUser::getInstance()->hasAccess('create', 'jobp') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
     }
 
     public function deleteArchive($row, $href, $label, $title, $icon, $attributes)
     {
-        return \Contao\BackendUser::getInstance()->hasAccess('delete', 'jobp') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+        return BackendUser::getInstance()->hasAccess('delete', 'jobp') ? '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\RequestToken::get().'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ' : \Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
     }
 }

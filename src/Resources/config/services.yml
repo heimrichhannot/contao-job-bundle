@@ -1,0 +1,16 @@
+services:
+  huh.job.data_container.job:
+    class: HeimrichHannot\JobBundle\DataContainer\Job
+    public: true
+    arguments:
+      - "@service_container"
+  huh.job.data_container.job_archive:
+    class: HeimrichHannot\JobBundle\DataContainer\JobArchive
+    public: true
+    arguments:
+      - "@service_container"
+  huh.job.data_container.content:
+    class: HeimrichHannot\JobBundle\DataContainer\Content
+    public: true
+    arguments:
+      - "@service_container"

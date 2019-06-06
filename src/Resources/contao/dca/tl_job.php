@@ -4,13 +4,15 @@ $GLOBALS['TL_DCA']['tl_job'] = [
     'config'      => [
         'dataContainer'     => 'Table',
         'ptable'            => 'tl_job_archive',
+        'ctable'            => ['tl_content'],
+        'switchToEdit'      => true,
         'enableVersioning'  => true,
         'onload_callback'   => [
-            ['huh.job.listener.job_callback', 'checkPermission'],
+            ['huh.job.data_container.job', 'checkPermission'],
             ['huh.utils.dca', 'generateSitemap'],
         ],
         'onsubmit_callback' => [
-            ['huh.job.listener.job_callback', 'adjustTime'],
+            ['huh.job.data_container.job', 'adjustTime'],
             ['huh.utils.dca', 'setDateAdded'],
         ],
         'oncopy_callback'   => [
@@ -33,7 +35,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'fields'                => ['date DESC'],
             'headerFields'          => ['title'],
             'panelLayout'           => 'filter;sort,search,limit',
-            'child_record_callback' => ['huh.job.listener.job_callback', 'listChildren'],
+            'child_record_callback' => ['huh.job.data_container.job', 'listChildren'],
         ],
         'global_operations' => [
             'all' => [
@@ -44,29 +46,34 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             ],
         ],
         'operations'        => [
-            'edit'   => [
+            'edit'       => [
                 'label' => &$GLOBALS['TL_LANG']['tl_job']['edit'],
-                'href'  => 'act=edit',
-                'icon'  => 'edit.gif',
+                'href'  => 'table=tl_content',
+                'icon'  => 'edit.svg'
             ],
-            'copy'   => [
+            'editheader' => [
+                'label' => &$GLOBALS['TL_LANG']['tl_job']['editMeta'],
+                'href'  => 'act=edit',
+                'icon'  => 'header.svg'
+            ],
+            'copy'       => [
                 'label' => &$GLOBALS['TL_LANG']['tl_job']['copy'],
                 'href'  => 'act=copy',
                 'icon'  => 'copy.gif',
             ],
-            'delete' => [
+            'delete'     => [
                 'label'      => &$GLOBALS['TL_LANG']['tl_job']['delete'],
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\''.$GLOBALS['TL_LANG']['MSC']['deleteConfirm'].'\'))return false;Backend.getScrollOffset()"',
+                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\'))return false;Backend.getScrollOffset()"',
             ],
-            'toggle' => [
+            'toggle'     => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_job']['toggle'],
                 'icon'            => 'visible.gif',
                 'attributes'      => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-                'button_callback' => ['huh.job.listener.job_callback', 'toggleIcon'],
+                'button_callback' => ['huh.job.data_container.job', 'toggleIcon'],
             ],
-            'show'   => [
+            'show'       => [
                 'label' => &$GLOBALS['TL_LANG']['tl_job']['show'],
                 'href'  => 'act=show',
                 'icon'  => 'show.gif',
@@ -76,7 +83,10 @@ $GLOBALS['TL_DCA']['tl_job'] = [
     'palettes'    => [
         '__selector__' => ['addImage', 'published'],
         'default'      => '
-            {general_legend},title,date,time,description,location,region,addImage,workingTime,levelsOfEducation,targets,yearsOfProfessionalExperience;
+            {title_legend},title;
+            {date_legend},date,time;
+            {teaser_legend},subheadline,teaser;
+            {detail_legend},description,location,region,addImage,workingTime,levelsOfEducation,targets,yearsOfProfessionalExperience;
             {enclosure_legend},files;
             {employer_legend},employer,overrideMemberContacts;{publish_legend},published;',
     ],
@@ -125,7 +135,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'inputType'     => 'text',
             'eval'          => ['rgxp' => 'date', 'mandatory' => true, 'doNotCopy' => true, 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'load_callback' => [
-                ['huh.job.listener.job_callback', 'loadDate'],
+                ['huh.job.data_container.job', 'loadDate'],
             ],
             'sql'           => "int(10) unsigned NOT NULL default '0'",
         ],
@@ -136,9 +146,25 @@ $GLOBALS['TL_DCA']['tl_job'] = [
             'inputType'     => 'text',
             'eval'          => ['rgxp' => 'time', 'mandatory' => true, 'doNotCopy' => true, 'tl_class' => 'w50'],
             'load_callback' => [
-                ['huh.job.listener.job_callback', 'loadTime'],
+                ['huh.job.data_container.job', 'loadTime'],
             ],
             'sql'           => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'subheadline'                   => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['subheadline'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'text',
+            'eval'      => ['maxlength' => 255, 'tl_class' => 'long'],
+            'sql'       => "varchar(255) NOT NULL default ''"
+        ],
+        'teaser'                        => [
+            'label'     => &$GLOBALS['TL_LANG']['tl_job']['teaser'],
+            'exclude'   => true,
+            'search'    => true,
+            'inputType' => 'textarea',
+            'eval'      => ['rte' => 'tinyMCE', 'tl_class' => 'clr'],
+            'sql'       => "text NULL"
         ],
         'description'                   => [
             'label'     => &$GLOBALS['TL_LANG']['tl_job']['description'],
@@ -190,7 +216,7 @@ $GLOBALS['TL_DCA']['tl_job'] = [
                 'fieldType'  => 'radio',
                 'multiple'   => true,
             ],
-            'uploadPathCallback' => [['huh.job.listener.job_callback', 'getUploadPath']],
+            'uploadPathCallback' => [['huh.job.data_container.job', 'getUploadPath']],
             'sql'                => "blob NULL",
         ],
         'workingTime'                   => [

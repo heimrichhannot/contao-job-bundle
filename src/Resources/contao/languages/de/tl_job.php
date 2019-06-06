@@ -14,6 +14,10 @@ $lang['date'][0]                          = 'Datum';
 $lang['date'][1]                          = 'Bitte geben Sie das Datum gemäß des globalen Datumsformats ein.';
 $lang['time'][0]                          = 'Zeit';
 $lang['time'][1]                          = 'Bitte geben Sie die Uhrzeit gemäß des globalen Zeitformats ein.';
+$lang['teaser'][0]                        = 'Teasertext';
+$lang['teaser'][1]                        = 'Der Teasertext kann in einer Jobliste anstatt des ganzen Beitrags angezeigt werden. Ein "Weiterlesen …"-Link wird automatisch hinzugefügt.';
+$lang['subheadline'][0]                   = 'Unterüberschrift';
+$lang['subheadline'][1]                   = 'Hier können Sie eine Unterüberschrift eingeben.';
 $lang['description'][0]                   = 'Beschreibung';
 $lang['description'][1]                   = 'Geben Sie hier bitte eine Beschreibung ein.';
 $lang['location'][0]                      = 'Ort';
@@ -50,7 +54,10 @@ $lang['stop'][1]      = 'Job nur bis zu diesem Tag auf der Webseite anzeigen.';
 /**
  * Legends
  */
-$lang['general_legend']   = 'Allgemeine Einstellungen';
+$lang['title_legend']     = 'Titel';
+$lang['date_legend']      = 'Datum und Zeit';
+$lang['teaser_legend']    = 'Unterüberschrift und Teaser';
+$lang['detail_legend']    = 'Stellenbeschreibung';
 $lang['employer_legend']  = 'Arbeitgeber';
 $lang['enclosure_legend'] = 'Anlagen';
 $lang['publish_legend']   = 'Veröffentlichung';
@@ -75,9 +82,10 @@ $lang['reference'] = [
 /**
  * Buttons
  */
-$lang['new']    = ['Neuer Job', 'Job erstellen'];
-$lang['edit']   = ['Job bearbeiten', 'Job ID %s bearbeiten'];
-$lang['copy']   = ['Job duplizieren', 'Job ID %s duplizieren'];
-$lang['delete'] = ['Job löschen', 'Job ID %s löschen'];
-$lang['toggle'] = ['Job veröffentlichen', 'Job ID %s veröffentlichen/verstecken'];
-$lang['show']   = ['Job Details', 'Job-Details ID %s anzeigen'];
+$lang['new']      = ['Neuer Job', 'Job erstellen'];
+$lang['edit']     = ['Job-Details bearbeiten', 'Job-Details ID %s bearbeiten'];
+$lang['editMeta'] = ['Job bearbeiten', 'Job ID %s bearbeiten'];
+$lang['copy']     = ['Job duplizieren', 'Job ID %s duplizieren'];
+$lang['delete']   = ['Job löschen', 'Job ID %s löschen'];
+$lang['toggle']   = ['Job veröffentlichen', 'Job ID %s veröffentlichen/verstecken'];
+$lang['show']     = ['Job Details', 'Job-Details ID %s anzeigen'];

@@ -14,7 +14,7 @@ use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use Contao\ManagerPlugin\Config\ContainerBuilder;
 use Contao\ManagerPlugin\Config\ExtensionPluginInterface;
-use HeimrichHannot\JobBundle\HeimrichHannotContaoJobBundle;
+use HeimrichHannot\JobBundle\ContaoJobBundle;
 use HeimrichHannot\UtilsBundle\Container\ContainerUtil;
 
 class Plugin implements BundlePluginInterface, ExtensionPluginInterface
@@ -37,7 +37,7 @@ class Plugin implements BundlePluginInterface, ExtensionPluginInterface
         $bundles[] = ContaoCoreBundle::class;
 
         return [
-            BundleConfig::create(HeimrichHannotContaoJobBundle::class)->setLoadAfter($bundles),
+            BundleConfig::create(ContaoJobBundle::class)->setLoadAfter($bundles),
         ];
     }
 
