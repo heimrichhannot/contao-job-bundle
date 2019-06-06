@@ -70,7 +70,7 @@ class JobCallbackListener
 
         if (null !== ($model = $adapter->findByPk($dc->id))) {
             $model->date = strtotime(date('Y-m-d', $dc->activeRecord->date).' '.date('H:i:s', $dc->activeRecord->time));
-            $model->time = $adapter->date;
+            $model->time = $model->date;
             $model->save();
         }
     }

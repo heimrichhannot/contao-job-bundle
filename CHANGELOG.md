@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2019-06-06
+
+### Fixed
+- `tl_job` onsubmit_callback `adjustTime` did not properly set time from date and time input
+
 ## [1.3.0] - 2019-02-14
 
 ### Added
