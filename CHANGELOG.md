@@ -1,11 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.2] - 2021-07-12
+
+- added license file
+- removed symfony 3 dependency for contao 4.9+
+
 ## [1.4.1] - 2019-06-06
 
 ### Fixed
 - remove NewsItemTrait getEnclosure method
-
 
 ## [1.4.0] - 2019-06-06
 
