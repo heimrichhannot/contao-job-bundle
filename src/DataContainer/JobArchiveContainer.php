@@ -8,25 +8,20 @@
 
 namespace HeimrichHannot\JobBundle\DataContainer;
 
-use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Exception\AccessDeniedException;
 use Contao\Database;
 use Contao\Input;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class JobArchive extends Backend
+class JobArchiveContainer
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+    protected $session;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(SessionInterface $session)
     {
-        $this->container = $container;
-        parent::__construct();
+        $this->session = $session;
     }
 
     public function checkPermission()
@@ -53,7 +48,7 @@ class JobArchive extends Backend
         }
 
         /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $objSession */
-        $objSession = $this->container->get('session');
+        $objSession = $this->session->get('session');
 
         // Check current action
         switch (Input::get('act')) {

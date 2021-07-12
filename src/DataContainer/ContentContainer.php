@@ -10,7 +10,9 @@ namespace HeimrichHannot\JobBundle\DataContainer;
 
 use Contao\Backend;
 use Contao\BackendUser;
+use Contao\Controller;
 use Contao\CoreBundle\Exception\AccessDeniedException;
+use Contao\Database;
 use Contao\Input;
 use DataContainer;
 use Image;
@@ -20,40 +22,32 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use System;
 use Versions;
 
-class Content extends Backend
+class ContentContainer
 {
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    protected $session;
 
-    /**
-     * @var BackendUser
-     */
-    protected $user;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(SessionInterface $session)
     {
-        $this->container = $container;
-        $this->user      = BackendUser::getInstance();
-        parent::__construct();
+        $this->session = $session;
     }
-
 
     /**
      * Check permissions to edit table tl_content
      */
     public function checkPermission()
     {
-        if ($this->user->isAdmin) {
+        if (BackendUser::getInstance()->isAdmin) {
             return;
         }
 
         // Set the root IDs
-        if (empty($this->user->jobs) || !\is_array($this->user->jobs)) {
+        if (empty(BackendUser::getInstance()->jobs) || !\is_array(BackendUser::getInstance()->jobs)) {
             $root = [0];
         } else {
-            $root = $this->user->jobs;
+            $root = BackendUser::getInstance()->jobs;
         }
 
         // Check the current action
@@ -76,11 +70,11 @@ class Content extends Backend
                     $this->checkAccessToElement(Input::get('pid'), $root, (Input::get('mode') == 2));
                 }
 
-                $objCes = $this->Database->prepare("SELECT id FROM tl_content WHERE ptable='tl_job' AND pid=?")
+                $objCes = Database::getInstance()->prepare("SELECT id FROM tl_content WHERE ptable='tl_job' AND pid=?")
                     ->execute(CURRENT_ID);
 
                 /** @var SessionInterface $objSession */
-                $objSession = $this->container->get('session');
+                $objSession = $this->session->get('session');
 
                 $sessionData                   = $objSession->all();
                 $sessionData['CURRENT']['IDS'] = array_intersect((array)$sessionData['CURRENT']['IDS'], $objCes->fetchEach('id'));
@@ -112,11 +106,11 @@ class Content extends Backend
     protected function checkAccessToElement($id, $root, $blnIsPid = false)
     {
         if ($blnIsPid) {
-            $objArchive = $this->Database->prepare("SELECT a.id, j.id AS jid FROM tl_job j, tl_job_archive a WHERE j.id=? AND j.pid=a.id")
+            $objArchive = Database::getInstance()->prepare("SELECT a.id, j.id AS jid FROM tl_job j, tl_job_archive a WHERE j.id=? AND j.pid=a.id")
                 ->limit(1)
                 ->execute($id);
         } else {
-            $objArchive = $this->Database->prepare("SELECT a.id, j.id AS jid FROM tl_content c, tl_job j, tl_job_archive a WHERE c.id=? AND c.pid=j.id AND j.pid=a.id")
+            $objArchive = Database::getInstance()->prepare("SELECT a.id, j.id AS jid FROM tl_content c, tl_job j, tl_job_archive a WHERE c.id=? AND c.pid=j.id AND j.pid=a.id")
                 ->limit(1)
                 ->execute($id);
         }
@@ -148,11 +142,11 @@ class Content extends Backend
     {
         if (\strlen(Input::get('tid'))) {
             $this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1), (@func_get_arg(12) ?: null));
-            $this->redirect($this->getReferer());
+            Controller::redirect(System::getReferer());
         }
 
         // Check permissions AFTER checking the tid, so hacking attempts are logged
-        if (!$this->user->hasAccess('tl_content::invisible', 'alexf')) {
+        if (!BackendUser::getInstance()->hasAccess('tl_content::invisible', 'alexf')) {
             return '';
         }
 
@@ -162,7 +156,7 @@ class Content extends Backend
             $icon = 'invisible.svg';
         }
 
-        return '<a href="' . $this->addToUrl($href) . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label, 'data-state="' . ($row['invisible'] ? 0 : 1) . '"') . '</a> ';
+        return '<a href="' . Controller::addToUrl($href) . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label, 'data-state="' . ($row['invisible'] ? 0 : 1) . '"') . '</a> ';
     }
 
     /**
@@ -186,8 +180,7 @@ class Content extends Backend
         if (\is_array($GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'])) {
             foreach ($GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'] as $callback) {
                 if (\is_array($callback)) {
-                    $this->import($callback[0]);
-                    $this->{$callback[0]}->{$callback[1]}($dc);
+                    System::importStatic($callback[0])->{$callback[1]}($dc);
                 } elseif (\is_callable($callback)) {
                     $callback($dc);
                 }
@@ -195,13 +188,13 @@ class Content extends Backend
         }
 
         // Check the field access
-        if (!$this->user->hasAccess('tl_content::invisible', 'alexf')) {
+        if (!BackendUser::getInstance()->hasAccess('tl_content::invisible', 'alexf')) {
             throw new AccessDeniedException('Not enough permissions to publish/unpublish content element ID ' . $intId . '.');
         }
 
         // Set the current record
         if ($dc) {
-            $objRow = $this->Database->prepare("SELECT * FROM tl_content WHERE id=?")
+            $objRow = Database::getInstance()->prepare("SELECT * FROM tl_content WHERE id=?")
                 ->limit(1)
                 ->execute($intId);
 
@@ -220,8 +213,8 @@ class Content extends Backend
         if (\is_array($GLOBALS['TL_DCA']['tl_content']['fields']['invisible']['save_callback'])) {
             foreach ($GLOBALS['TL_DCA']['tl_content']['fields']['invisible']['save_callback'] as $callback) {
                 if (\is_array($callback)) {
-                    $this->import($callback[0]);
-                    $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, $dc);
+                    $blnVisible = System::importStatic($callback[0])->{$callback[1]}($blnVisible, $dc);
+
                 } elseif (\is_callable($callback)) {
                     $blnVisible = $callback($blnVisible, $dc);
                 }
@@ -231,7 +224,7 @@ class Content extends Backend
         $time = time();
 
         // Update the database
-        $this->Database->prepare("UPDATE tl_content SET tstamp=$time, invisible='" . ($blnVisible ? '1' : '') . "' WHERE id=?")
+        Database::getInstance()->prepare("UPDATE tl_content SET tstamp=$time, invisible='" . ($blnVisible ? '1' : '') . "' WHERE id=?")
             ->execute($intId);
 
         if ($dc) {
@@ -243,8 +236,7 @@ class Content extends Backend
         if (\is_array($GLOBALS['TL_DCA']['tl_content']['config']['onsubmit_callback'])) {
             foreach ($GLOBALS['TL_DCA']['tl_content']['config']['onsubmit_callback'] as $callback) {
                 if (\is_array($callback)) {
-                    $this->import($callback[0]);
-                    $this->{$callback[0]}->{$callback[1]}($dc);
+                    System::importStatic($callback[0])->{$callback[1]}($dc);
                 } elseif (\is_callable($callback)) {
                     $callback($dc);
                 }

@@ -8,7 +8,6 @@
 
 namespace HeimrichHannot\JobBundle\DataContainer;
 
-use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Exception\AccessDeniedException;
@@ -16,21 +15,19 @@ use Contao\Database;
 use Contao\DataContainer;
 use Contao\Input;
 use Contao\System;
-use HeimrichHannot\JobBundle\Model\JobModel;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Contao\Versions;
+use HeimrichHannot\UtilsBundle\Model\ModelUtil;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class Job extends Backend
+class JobContainer
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+    protected $session;
+    protected $modelUtil;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(SessionInterface $session, ModelUtil $modelUtil)
     {
-        $this->container = $container;
-        parent::__construct();
+        $this->session   = $session;
+        $this->modelUtil = $modelUtil;
     }
 
     /**
@@ -69,10 +66,7 @@ class Job extends Backend
             return;
         }
 
-        /** @var JobModel $adapter */
-        $adapter = $this->container->get('contao.framework')->getAdapter(JobModel::class);
-
-        if (null !== ($model = $adapter->findByPk($dc->id))) {
+        if (null !== ($model = $this->modelUtil->findModelInstanceByPk('tl_job', $dc->id))) {
             $model->date = strtotime(date('Y-m-d', $dc->activeRecord->date) . ' ' . date('H:i:s', $dc->activeRecord->time));
             $model->time = $model->date;
             $model->save();
@@ -126,7 +120,7 @@ class Job extends Backend
             case 'delete':
             case 'toggle':
             case 'feature':
-                $item = \Contao\System::getContainer()->get('huh.utils.model')->findModelInstanceByPk('tl_job', $id);
+                $item = $this->modelUtil->findModelInstanceByPk('tl_job', $id);
 
                 if (null === $item) {
                     throw new AccessDeniedException('Invalid job item ID ' . $id . '.');
@@ -148,26 +142,23 @@ class Job extends Backend
                     throw new AccessDeniedException('Not enough permissions to access tl_job archive ID ' . $id . '.');
                 }
 
-                $items = \Contao\System::getContainer()->get('huh.utils.model')->findModelInstancesBy('tl_job', ['pid=?'], [$id]);
+                $items = $this->modelUtil->findModelInstancesBy('tl_job', ['pid=?'], [$id]);
 
 
                 if (null === $items) {
                     break;
                 }
 
-                /** @var SessionInterface $objSession */
-                $session = System::getContainer()->get('session');
-
-                $sessionData                   = $objSession->all();
+                $sessionData                   = $this->session->all();
                 $sessionData['CURRENT']['IDS'] = array_intersect((array)$sessionData['CURRENT']['IDS'], $items->fetchEach('id'));
-                $session->replace($sessionData);
+                $this->session->replace($sessionData);
                 break;
 
             default:
                 if (strlen(Input::get('act'))) {
                     throw new AccessDeniedException('Invalid command "' . Input::get('act') . '".');
                 } elseif (!in_array($id, $root)) {
-                    throw newAccessDeniedException('Not enough permissions to access job archive ID ' . $id . '.');
+                    throw new AccessDeniedException('Not enough permissions to access job archive ID ' . $id . '.');
                 }
                 break;
         }
@@ -175,10 +166,10 @@ class Job extends Backend
 
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        $user = BackendUser::getInstance();
+        $user = \Contao\BackendUser::getInstance();
 
-        if (strlen(Input::get('tid'))) {
-            $this->toggleVisibility(Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
+        if (strlen(\Contao\Input::get('tid'))) {
+            $this->toggleVisibility(\Contao\Input::get('tid'), ('1' === \Contao\Input::get('state')), (@func_get_arg(12) ?: null));
             Controller::redirect(System::getReferer());
         }
 
@@ -187,88 +178,41 @@ class Job extends Backend
             return '';
         }
 
-        $href .= '&amp;tid=' . $row['id'] . '&amp;state=' . ($row['published'] ? '' : 1);
+        $href .= '&amp;tid='.$row['id'].'&amp;state='.($row['published'] ? '' : 1);
 
         if (!$row['published']) {
             $icon = 'invisible.svg';
         }
 
-        return '<a href="' . Controller::addToUrl($href) . '&rt=' . \RequestToken::get() . '" title="' . \StringUtil::specialchars($title) . '"' . $attributes . '>' . \Image::getHtml($icon, $label, 'data-state="' . ($row['published'] ? 1 : 0) . '"') . '</a> ';
+        return '<a href="'.Controller::addToUrl($href).'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label).'</a> ';
     }
 
-    public function toggleVisibility($intId, $blnVisible, \DataContainer $dc = null)
+    public function toggleVisibility($intId, $blnVisible)
     {
-        $user     = BackendUser::getInstance();
-        $database = Database::getInstance();
+        $objUser = \BackendUser::getInstance();
+        $objDatabase = \Database::getInstance();
 
-        // Set the ID and action
-        Input::setGet('id', $intId);
-        Input::setGet('act', 'toggle');
-
-        if ($dc) {
-            $dc->id = $intId; // see #8043
+        // Check permissions to publish
+        if (!$objUser->isAdmin && !$objUser->hasAccess('tl_job::published', 'alexf')) {
+            Controller::log('Not enough permissions to publish/unpublish item ID "'.$intId.'"', 'tl_job toggleVisibility', TL_ERROR);
+            Controller::redirect('contao/main.php?act=error');
         }
 
-        // Trigger the onload_callback
-        if (is_array($GLOBALS['TL_DCA']['tl_job']['config']['onload_callback'])) {
-            foreach ($GLOBALS['TL_DCA']['tl_job']['config']['onload_callback'] as $callback) {
-                if (is_array($callback)) {
-                    System::importStatic($callback[0])->{$callback[1]}($dc);
-                } elseif (is_callable($callback)) {
-                    $callback($dc);
-                }
-            }
-        }
-
-        // Check the field access
-        if (!$user->hasAccess('tl_job::published', 'alexf')) {
-            throw new AccessDeniedException('Not enough permissions to publish/unpublish job item ID ' . $intId . '.');
-        }
-
-        // Set the current record
-        if ($dc) {
-            $objRow = $database->prepare('SELECT * FROM tl_job WHERE id=?')->limit(1)->execute($intId);
-
-            if ($objRow->numRows) {
-                $dc->activeRecord = $objRow;
-            }
-        }
-
-        $objVersions = new \Versions('tl_job', $intId);
+        $objVersions = new Versions('tl_job', $intId);
         $objVersions->initialize();
 
         // Trigger the save_callback
         if (is_array($GLOBALS['TL_DCA']['tl_job']['fields']['published']['save_callback'])) {
             foreach ($GLOBALS['TL_DCA']['tl_job']['fields']['published']['save_callback'] as $callback) {
-                if (is_array($callback)) {
-                    $blnVisible = System::importStatic($callback[0])->{$callback[1]}($blnVisible, $dc);
-                } elseif (is_callable($callback)) {
-                    $blnVisible = $callback($blnVisible, $dc);
-                }
+                $blnVisible = System::importStatic($callback[0])->{$callback[1]}($blnVisible, $this);
             }
         }
-
-        $time = time();
 
         // Update the database
-        $database->prepare("UPDATE tl_job SET tstamp=$time, published='" . ($blnVisible ? '1' : "''") . "' WHERE id=?")->execute($intId);
-
-        if ($dc) {
-            $dc->activeRecord->tstamp    = $time;
-            $dc->activeRecord->published = ($blnVisible ? '1' : '');
-        }
-
-        // Trigger the onsubmit_callback
-        if (is_array($GLOBALS['TL_DCA']['tl_job']['config']['onsubmit_callback'])) {
-            foreach ($GLOBALS['TL_DCA']['tl_job']['config']['onsubmit_callback'] as $callback) {
-                if (is_array($callback)) {
-                    System::importStatic($callback[0])->{$callback[1]}($dc);
-                } elseif (is_callable($callback)) {
-                    $callback($dc);
-                }
-            }
-        }
+        $objDatabase->prepare('UPDATE tl_job SET tstamp='.time().", published='".($blnVisible ? 1 : '')."' WHERE id=?")->execute($intId);
 
         $objVersions->create();
+        Controller::log('A new version of record "tl_job.id='.$intId.'" has been created',
+            'tl_job toggleVisibility()', TL_GENERAL);
     }
 }
