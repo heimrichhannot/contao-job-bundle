@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2023-09-06
+- Fixed: php8 warning: undefined array key `deleteConfirm`
+
 ## [1.6.0] - 2022-03-01
 - Changed: allow php 8
 
