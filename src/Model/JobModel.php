@@ -8,7 +8,9 @@
 
 namespace HeimrichHannot\JobBundle\Model;
 
-class JobModel extends \Model
+use Contao\Model;
+
+class JobModel extends Model
 {
     const WORKING_TIME_FULL_TIME = 'full_time';
     const WORKING_TIME_PART_TIME = 'part_time';

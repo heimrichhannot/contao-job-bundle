@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.2] - 2024-03-19
+- Fixed: possible exception with default template
+- Fixed: job posting content elements not outputted in default template
+- Fixed: outdated namespaces
+
 ## [1.6.1] - 2023-09-06
 - Fixed: php8 warning: undefined array key `deleteConfirm`
 

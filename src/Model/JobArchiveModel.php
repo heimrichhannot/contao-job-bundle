@@ -8,7 +8,9 @@
 
 namespace HeimrichHannot\JobBundle\Model;
 
-class JobArchiveModel extends \Model
+use Contao\Model;
+
+class JobArchiveModel extends Model
 {
     protected static $strTable = 'tl_job_archive';
 }
